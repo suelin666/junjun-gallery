@@ -1,0 +1,48 @@
+{
+  "generatedAt": "2026-09-22 08:01",
+  "count": 3,
+  "works": [
+    {
+      "slug": "train-story",
+      "title": "峻峻和臭脚丫大灰狼",
+      "kind": "story",
+      "kindLabel": "绘本",
+      "badge": "9 页",
+      "cover": "covers/train-story.jpg",
+      "qr": "qr/train-story.png",
+      "onlineUrl": "https://4m3bxapz6bysm.doubaoapps.com/app/app_17ejw032m0w",
+      "appId": "app_17ejw032m0w",
+      "localUrl": "/work/train-story/",
+      "desc": "大灰狼的臭脚丫故事，睡前听",
+      "order": 1
+    },
+    {
+      "slug": "wolf-bunny",
+      "title": "峻峻和大灰狼小白兔",
+      "kind": "story",
+      "kindLabel": "绘本",
+      "badge": "9 页",
+      "cover": "covers/wolf-bunny.jpg",
+      "qr": "qr/wolf-bunny.png",
+      "onlineUrl": "https://4m3bxapz6bysm.doubaoapps.com/app/app_17ejyt9qh07",
+      "appId": "app_17ejyt9qh07",
+      "localUrl": "/work/wolf-bunny/",
+      "desc": "峻峻和大灰狼、小白兔交朋友",
+      "order": 2
+    },
+    {
+      "slug": "wolf-bunny-puzzle",
+      "title": "大灰狼和小白兔拼图",
+      "kind": "puzzle",
+      "kindLabel": "拼图",
+      "badge": "48 块",
+      "cover": "covers/wolf-bunny-puzzle.jpg",
+      "qr": "qr/wolf-bunny-puzzle.png",
+      "onlineUrl": "https://4m3bxapz6bysm.doubaoapps.com/app/app_17ek3eg8fjp",
+      "appId": "app_17ek3eg8fjp",
+      "localUrl": "/work/wolf-bunny-puzzle/",
+      "desc": "48 块拼图，把大灰狼和小白兔拼回来",
+      "order": 3
+    }
+  ]
+}

@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>峻峻的作品馆</title>
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="作品馆">
+<meta name="theme-color" content="#faf7f2">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="icon" href="/icon.png">
+<style>
+  :root {
+    --bg: #faf7f2;
+    --bg-2: #f1e9de;
+    --ink: #2b2620;
+    --ink-soft: #7a7168;
+    --accent: #c8622a;
+    --accent-soft: #f6ede2;
+    --card: #ffffff;
+    --line: rgba(43, 38, 32, .09);
+    --radius: 22px;
+    --tap: 56px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    min-height: 100dvh;
+    background: linear-gradient(180deg, var(--bg) 0%, var(--bg-2) 100%);
+    background-attachment: fixed;
+    color: var(--ink);
+    font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
+    -webkit-font-smoothing: antialiased;
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 22px)
+      calc(env(safe-area-inset-right, 0px) + 20px)
+      calc(env(safe-area-inset-bottom, 0px) + 34px)
+      calc(env(safe-area-inset-left, 0px) + 20px);
+    overflow-x: hidden;
+  }
+  header { max-width: 1280px; margin: 0 auto 18px; }
+  h1 {
+    font-size: clamp(1.6rem, 3.6vw, 2.3rem);
+    line-height: 1.2;
+    margin: 0 0 6px;
+    letter-spacing: .01em;
+  }
+  .sub { margin: 0; color: var(--ink-soft); font-size: clamp(.9rem, 1.7vw, 1.05rem); }
+
+  .grid {
+    max-width: 1280px;
+    margin: 0 auto;
+    display: grid;
+    gap: clamp(14px, 2vw, 22px);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  @media (min-width: 1000px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+  @media (min-width: 1360px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+
+  .card {
+    position: relative;
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: 0 1px 2px var(--line), 0 12px 28px -18px rgba(43, 38, 32, .35);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+  }
+  .card-open {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .card-open:active { transform: scale(.985); }
+  .card-open, .card-open * { transition: transform .12s ease; }
+  .thumb {
+    position: relative;
+    aspect-ratio: 3 / 4;
+    background: var(--accent-soft);
+    overflow: hidden;
+  }
+  .thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .thumb-empty {
+    display: flex; align-items: center; justify-content: center;
+    color: var(--ink-soft); font-size: 2.4rem;
+  }
+  .meta { padding: 14px 16px 18px; }
+  .meta h2 {
+    font-size: clamp(1rem, 1.9vw, 1.15rem);
+    margin: 0 0 8px;
+    line-height: 1.3;
+  }
+  .badge {
+    display: inline-block;
+    font-size: .82rem;
+    color: #a75520;
+    background: var(--accent-soft);
+    border-radius: 999px;
+    padding: 4px 11px;
+  }
+  .desc { margin: 8px 0 0; color: var(--ink-soft); font-size: .88rem; line-height: 1.45; }
+
+  .qr-btn {
+    position: absolute;
+    right: 12px;
+    bottom: 12px;
+    width: var(--tap);
+    height: var(--tap);
+    border: 0;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 2px 10px rgba(43, 38, 32, .17);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .qr-btn:active { transform: scale(.94); }
+  .qr-btn svg { width: 26px; height: 26px; }
+
+  /* 二维码浮层 */
+  .overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgba(30, 26, 22, .5);
+    -webkit-backdrop-filter: blur(6px);
+    backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding:
+      calc(env(safe-area-inset-top, 0px) + 20px)
+      20px
+      calc(env(safe-area-inset-bottom, 0px) + 20px);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity .16s ease;
+  }
+  .overlay.open { opacity: 1; pointer-events: auto; }
+  .sheet {
+    position: relative;
+    width: min(92vw, 420px);
+    max-height: 100%;
+    overflow: auto;
+    background: #fffdfa;
+    border-radius: 26px;
+    padding: 26px 24px 22px;
+    text-align: center;
+    box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .5);
+    transform: translateY(10px) scale(.98);
+    transition: transform .18s ease;
+  }
+  .overlay.open .sheet { transform: none; }
+  .sheet h3 { margin: 0 0 4px; font-size: 1.18rem; line-height: 1.35; }
+  .sheet .hint { margin: 0 0 16px; color: var(--ink-soft); font-size: .88rem; }
+  .qr-frame {
+    background: #f7f5f0;
+    border-radius: 18px;
+    padding: 14px;
+    display: inline-block;
+    line-height: 0;
+    margin-bottom: 14px;
+  }
+  .qr-frame img {
+    width: min(60vw, 300px);
+    height: auto;
+    display: block;
+    image-rendering: crisp-edges;
+  }
+  .url {
+    margin: 0 0 18px;
+    font-size: .76rem;
+    color: var(--ink-soft);
+    word-break: break-all;
+    line-height: 1.5;
+  }
+  .close-x {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 48px;
+    height: 48px;
+    border: 0;
+    background: transparent;
+    color: var(--ink-soft);
+    font-size: 1.7rem;
+    line-height: 1;
+    cursor: pointer;
+    border-radius: 50%;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .close-x:active { background: var(--accent-soft); }
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 54px;
+    padding: 0 26px;
+    border: 0;
+    border-radius: 999px;
+    background: var(--accent);
+    color: #fff;
+    font-size: 1.05rem;
+    font-weight: 600;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .btn:active { filter: brightness(.94); }
+  footer {
+    max-width: 1280px;
+    margin: 26px auto 0;
+    color: var(--ink-soft);
+    font-size: .8rem;
+    text-align: center;
+  }
+  .empty { color: var(--ink-soft); text-align: center; padding: 8vh 0; }
+</style>
+</head>
+<body>
+<header>
+  <h1>峻峻的作品馆</h1>
+  <p class="sub">点封面就能看；右下角的小方码按钮，可以把作品分享给别人的手机。</p>
+</header>
+
+<main id="grid" class="grid" aria-live="polite"></main>
+<footer id="footer"></footer>
+
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="qr-title" hidden>
+  <div class="sheet">
+    <button class="close-x" id="qr-x" aria-label="关闭二维码">×</button>
+    <h3 id="qr-title">作品</h3>
+    <p class="hint">用手机相机扫码，在别的设备上打开</p>
+    <div class="qr-frame"><img id="qr-img" alt="作品二维码"></div>
+    <p class="url" id="qr-url"></p>
+    <button class="btn" id="qr-close">关闭</button>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  var grid = document.getElementById("grid");
+  var footer = document.getElementById("footer");
+  var overlay = document.getElementById("overlay");
+  var qrImg = document.getElementById("qr-img");
+  var qrUrl = document.getElementById("qr-url");
+  var qrTitle = document.getElementById("qr-title");
+  var lastTrigger = null;
+
+  var QR_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">'
+    + '<rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/>'
+    + '<rect x="3" y="14" width="7" height="7" rx="1.6"/><path d="M14 14h3v3h-3z"/><path d="M19.5 14H21v1.5"/>'
+    + '<path d="M14 19.5V21h1.5"/><path d="M19.5 19.5H21V21"/></svg>';
+
+  function openQr(work, trigger) {
+    lastTrigger = trigger || null;
+    qrTitle.textContent = work.title;
+    qrUrl.textContent = work.onlineUrl || "";
+    qrImg.src = work.qr;
+    qrImg.alt = work.title + " 二维码";
+    overlay.hidden = false;
+    // 下一帧加 class，保证过渡生效
+    requestAnimationFrame(function () { overlay.classList.add("open"); });
+    document.getElementById("qr-close").focus({ preventScroll: true });
+  }
+
+  function closeQr() {
+    if (overlay.hidden) return;
+    overlay.classList.remove("open");
+    var done = function () {
+      overlay.hidden = true;
+      qrImg.removeAttribute("src");
+      if (lastTrigger && document.contains(lastTrigger)) lastTrigger.focus({ preventScroll: true });
+    };
+    setTimeout(done, 170);
+  }
+
+  document.getElementById("qr-close").addEventListener("click", closeQr);
+  document.getElementById("qr-x").addEventListener("click", closeQr);
+  overlay.addEventListener("click", function (e) { if (e.target === overlay) closeQr(); });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape") closeQr(); });
+
+  function card(work) {
+    var el = document.createElement("article");
+    el.className = "card";
+
+    var link = document.createElement("a");
+    link.className = "card-open";
+    // 线上优先：iPad 与本机不在同一个 Wi-Fi，所以作品统一走公网地址。
+    link.href = work.onlineUrl || work.localUrl;
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.setAttribute("aria-label", "打开《" + work.title + "》");
+
+    var thumb = document.createElement("div");
+    thumb.className = "thumb";
+    if (work.cover) {
+      var img = document.createElement("img");
+      img.src = work.cover;
+      img.alt = "";
+      img.loading = "lazy";
+      thumb.appendChild(img);
+    } else {
+      thumb.classList.add("thumb-empty");
+      thumb.textContent = "◆";
+    }
+
+    var meta = document.createElement("div");
+    meta.className = "meta";
+    var h2 = document.createElement("h2");
+    h2.textContent = work.title;
+    meta.appendChild(h2);
+    var badgeText = [work.kindLabel, work.badge].filter(Boolean).join(" · ");
+    if (badgeText) {
+      var badge = document.createElement("span");
+      badge.className = "badge";
+      badge.textContent = badgeText;
+      meta.appendChild(badge);
+    }
+    if (work.desc) {
+      var desc = document.createElement("p");
+      desc.className = "desc";
+      desc.textContent = work.desc;
+      meta.appendChild(desc);
+    }
+
+    link.appendChild(thumb);
+    link.appendChild(meta);
+    el.appendChild(link);
+
+    if (work.qr) {
+      var btn = document.createElement("button");
+      btn.className = "qr-btn";
+      btn.type = "button";
+      btn.innerHTML = QR_ICON;
+      btn.setAttribute("aria-label", "显示《" + work.title + "》的二维码");
+      btn.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openQr(work, btn);
+      });
+      el.appendChild(btn);
+    }
+    return el;
+  }
+
+  fetch("works.json", { cache: "no-store" })
+    .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+    .then(function (data) {
+      var works = data.works || [];
+      grid.textContent = "";
+      if (!works.length) {
+        var p = document.createElement("p");
+        p.className = "empty";
+        p.textContent = "还没有作品，先让豆包做一本吧。";
+        grid.appendChild(p);
+        return;
+      }
+      var frag = document.createDocumentFragment();
+      works.forEach(function (w) { frag.appendChild(card(w)); });
+      grid.appendChild(frag);
+      footer.textContent = "共 " + works.length + " 个作品 · 更新于 " + (data.generatedAt || "");
+    })
+    .catch(function (err) {
+      grid.textContent = "";
+      var p = document.createElement("p");
+      p.className = "empty";
+      p.textContent = "作品列表没读出来（" + err.message + "），确认服务在跑，然后刷新一下。";
+      grid.appendChild(p);
+    });
+})();
+</script>
+</body>
+</html>
