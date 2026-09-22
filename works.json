@@ -1,5 +1,7 @@
 {
-  "generatedAt": "2026-09-22 10:28",
+  "generatedAt": "2026-09-22 10:32",
+  "latestCreated": "2026-09-22",
+  "siteQr": "qr/gallery.png",
   "count": 2,
   "works": [
     {
@@ -12,6 +14,7 @@
       "qr": "qr/train-story.png",
       "onlineUrl": "https://4m3bxapz6bysm.doubaoapps.com/app/app_17ejw032m0w",
       "appId": "app_17ejw032m0w",
+      "created": "2026-09-22",
       "localUrl": "/work/train-story/",
       "desc": "大灰狼的臭脚丫故事，睡前听",
       "order": 1
@@ -26,6 +29,7 @@
       "qr": "qr/wolf-bunny.png",
       "onlineUrl": "https://4m3bxapz6bysm.doubaoapps.com/app/app_17ejyt9qh07",
       "appId": "app_17ejyt9qh07",
+      "created": "2026-09-22",
       "localUrl": "/work/wolf-bunny/",
       "desc": "峻峻和大灰狼、小白兔交朋友",
       "order": 2
