@@ -254,10 +254,14 @@
     /* 左移 8px（26 → 18）：书名可用宽度直接多 8px */
     left: 18px;
     top: 16px;
-    /* 右侧避让右上角序号圆：圆 24px + 右边距 10px + 4px 净空 = 38px。
+    /* 右侧避让右上角的书签：书签 22px（贴右边缘）+ 4px 净空 = 26px。
        **这个值直接决定「书名最多几个字」** —— 430pt 档每多 14.4px 就多一个汉字。
-       改它（或改序号圆尺寸/标签内边距）必须重跑全档字数实测。 */
-    right: 38px;
+       横向占用 → 单行字数实测（13 档 sweep 得到）：
+         占 38px：375/393 档 6 字、414 档 7 字、430 档 8 字
+         占 26px：375/393 档 7 字、414 档 8 字、430 档 9 字
+       所以序号从 34px 的圆形角标换成 22px 的书签后，上限就从 6 字提到 7 字。
+       改这个值（或改书签尺寸、标签内边距）必须重跑全档字数实测。 */
+    right: 26px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -282,25 +286,33 @@
     font-weight: 600;
     color: var(--ink);
   }
-  /* 右上角序号：圆形角标。只读不可点，所以不适用 52px 触摸目标。 */
-  .card-no-badge {
+  /* 右上角序号：书签造型 —— 贴卡片右边缘、从顶边垂下、底部燕尾缺口。
+     为什么是书签：① 语义对（绘本馆里「第 N 册」本来就该像书签，不是圆点）；
+     ② 形状薄（22px vs 圆形角标的 34px 横向占用），直接给书名多让出一个汉字的宽度；
+     ③ 贴右边缘像「夹在书页里露出的那截」，四张卡的书签永远同一位置。
+     白底而非橙底：橙色只留给需要被识别的元素（数字本身、二维码按钮）。
+     给书签上重色，它会变成卡片上唯一的色块，把最次要的信息抬成最抢眼的 ——
+     这和当年那个 40% 黑底日期胶囊是同一个错误。
+     贴 top:0 right:0，右上角由卡片自身的 border-radius 裁成圆弧，形成「从书页边缘露出」的效果。
+     只读不可点，不适用 52px 触摸目标。 */
+  .card-bookmark {
     position: absolute;
     z-index: 3;
-    right: 10px;
-    top: 16px;
-    width: 24px;
-    height: 24px;
-    border-radius: 50%;
+    right: 0;
+    top: 0;
+    width: 22px;
+    height: 44px;
     background: #fffdf8;
-    box-shadow: 0 1px 5px rgba(43, 38, 32, .15);
+    clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 74%, 0 100%);
     color: var(--accent);
     font-size: .7rem;
     font-weight: 700;
     line-height: 1;
     font-variant-numeric: tabular-nums;
     display: flex;
-    align-items: center;
     justify-content: center;
+    padding-top: 9px;
+    box-sizing: border-box;
   }
   /* 左下角创作日期：最次要的信息。
      降级只靠字号 + 灰度，**不加底衬** —— 给它一个色块就等于把最不重要的信息抬到最显眼。
@@ -316,11 +328,17 @@
     line-height: 1;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
-    color: #8d8479;
+    /* 用色板里已有的次要灰（--ink-soft），不硬编码新灰。
+       别比这更淡：日期常落在插画的亮部（草地、花丛），白晕在亮底上没有对比，
+       再淡一档就从「次要」变成「看不见」—— 弱化不等于让信息消失。 */
+    color: var(--ink-soft);
+    /* 四层白晕：内核两层收紧（2/4px）压出字的边缘，外层两层铺开（8/12px）把
+       整块区域提亮。三层时（3/6/11px）在插画的亮部（草地、花丛）仍会被冲淡。 */
     text-shadow:
-      0 0 3px #fffdf8,
-      0 0 6px #fffdf8,
-      0 0 11px rgba(255, 253, 248, .93);
+      0 0 2px #fffdf8,
+      0 0 4px #fffdf8,
+      0 0 8px #fffdf8,
+      0 0 12px rgba(255, 253, 248, .9);
   }
   /* 卡片右下角：只剩二维码按钮 */
   .card-foot {
@@ -357,7 +375,7 @@
      媒体查询不提升优先级，写在前面会被后面的基础规则盖掉（已踩过一次）。 */
   @media (max-width: 360px) {
     .card-tag h2 { font-size: .84rem; }
-    .card-date { left: 12px; font-size: .56rem; }
+    .card-date { left: 12px; font-size: .54rem; }
     .card-foot { right: 14px; }
     .qr-btn { width: 46px; height: 46px; }
   }
@@ -640,11 +658,11 @@
     caption.appendChild(tag);
     thumb.appendChild(caption);
 
-    /* 右上角：序号圆形角标。
+    /* 右上角：序号书签。
        序号已在卡片的 aria-label（「打开第 N 册《…》」）里念过，这里标 aria-hidden
        避免屏幕阅读器重复朗读同一个信息。 */
     var no = document.createElement("span");
-    no.className = "card-no-badge";
+    no.className = "card-bookmark";
     no.textContent = seqText;
     no.setAttribute("aria-hidden", "true");
     thumb.appendChild(no);
