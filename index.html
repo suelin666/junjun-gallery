@@ -657,6 +657,7 @@
      不依赖浏览器导航栏 —— 加到主屏后是全屏无地址栏的，小朋友靠浏览器返回键回不来。 */
   var reader = document.getElementById("reader");
   var frame = document.getElementById("reader-frame");
+  var readerBack = document.getElementById("reader-back");
   var readerUrl = "";
 
   /* 绘本页看到这个 hash 会跳过自己的封面页，直接进故事正文 ——
@@ -673,9 +674,10 @@
     readerUrl = work.onlineUrl || work.localUrl;
     frame.src = withEntryFlag(readerUrl);
     reader.hidden = false;
+    readerBack.hidden = false;   // 先按兜底显示；作品自带返回时会通知收起
     document.body.style.overflow = "hidden";
     syncRail();   // 阅读层占满整屏，下拉条该收起来
-    document.getElementById("reader-back").focus({ preventScroll: true });
+    readerBack.focus({ preventScroll: true });
   }
 
   function closeReader() {
@@ -687,7 +689,19 @@
     syncRail();   // 回到列表，按当前滚动位置重新显示
   }
 
-  document.getElementById("reader-back").addEventListener("click", closeReader);
+  /* 绘本自带的「返回」按钮会通知这里：
+     - reader-has-back：这本书自己左上角有返回，收起作品馆那个，避免两个按钮叠在一起；
+     - close-reader：把阅读层关掉（在 iframe 里时绘本没有浏览器返回键可用）。
+     老作品不发消息，作品馆这个按钮照旧兜底。 */
+  window.addEventListener("message", function (e) {
+    if (e.source !== frame.contentWindow) return;
+    var d = e.data;
+    if (!d || d.type !== "junjun-gallery") return;
+    if (d.action === "reader-has-back") readerBack.hidden = true;
+    else if (d.action === "close-reader") closeReader();
+  });
+
+  readerBack.addEventListener("click", closeReader);
   /* 「在浏览器中打开」算单独进入：给不带 hash 的原始地址，让作品页正常显示封面 */
   document.getElementById("reader-external").addEventListener("click", function () {
     if (readerUrl) window.open(readerUrl, "_blank", "noopener");
