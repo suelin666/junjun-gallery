@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-09-22 08:04",
-  "count": 3,
+  "generatedAt": "2026-09-22 09:28",
+  "count": 2,
   "works": [
     {
       "slug": "train-story",
@@ -29,20 +29,6 @@
       "localUrl": "/work/wolf-bunny/",
       "desc": "峻峻和大灰狼、小白兔交朋友",
       "order": 2
-    },
-    {
-      "slug": "wolf-bunny-puzzle",
-      "title": "大灰狼和小白兔拼图",
-      "kind": "puzzle",
-      "kindLabel": "拼图",
-      "badge": "48 块",
-      "cover": "covers/wolf-bunny-puzzle.jpg",
-      "qr": "qr/wolf-bunny-puzzle.png",
-      "onlineUrl": "https://4m3bxapz6bysm.doubaoapps.com/app/app_17ek3eg8fjp",
-      "appId": "app_17ek3eg8fjp",
-      "localUrl": "/work/wolf-bunny-puzzle/",
-      "desc": "48 块拼图，把大灰狼和小白兔拼回来",
-      "order": 3
     }
   ]
 }
