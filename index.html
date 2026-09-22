@@ -30,6 +30,11 @@
     --line: rgba(43, 38, 32, .09);
     --radius: 22px;
     --tap: 52px;
+    /* 整馆二维码（固定在画面右下角）的尺寸与边距。
+       抽成变量是为了让「页面底部留白」能跟着它算 —— 见 body 的 padding-bottom。
+       改这两个值不用再去别处同步数字。 */
+    --site-qr-size: 64px;
+    --site-qr-gap: 22px;
   }
   * { box-sizing: border-box; }
   [hidden] { display: none !important; }
@@ -42,10 +47,14 @@
     color: var(--ink);
     font-family: -apple-system, BlinkMacSystemFont, "PingFang SC", "Helvetica Neue", sans-serif;
     -webkit-font-smoothing: antialiased;
+    /* 底部留白必须让开「整馆二维码」这个固定元素，否则滚到底时它会压住
+       最后一排卡片的二维码按钮 —— 两个都是二维码按钮，功能还冲突。
+       计算方法：留白 = 二维码尺寸 + 二维码离底距离 + 净空。
+       这里不再用固定的 34px：34px 只够"喘口气"，不够"避让"。 */
     padding:
       calc(env(safe-area-inset-top, 0px) + 22px)
       calc(env(safe-area-inset-right, 0px) + 20px)
-      calc(env(safe-area-inset-bottom, 0px) + 34px)
+      calc(env(safe-area-inset-bottom, 0px) + var(--site-qr-size) + var(--site-qr-gap) + 12px)
       calc(env(safe-area-inset-left, 0px) + 20px);
     overflow-x: hidden;
   }
@@ -422,11 +431,11 @@
   /* 整个作品馆的二维码：固定在画面右下角 */
   .site-qr {
     position: fixed;
-    right: calc(env(safe-area-inset-right, 0px) + 22px);
-    bottom: calc(env(safe-area-inset-bottom, 0px) + 22px);
+    right: calc(env(safe-area-inset-right, 0px) + var(--site-qr-gap));
+    bottom: calc(env(safe-area-inset-bottom, 0px) + var(--site-qr-gap));
     z-index: 45;
-    width: 64px;
-    height: 64px;
+    width: var(--site-qr-size);
+    height: var(--site-qr-size);
     border: 0;
     border-radius: 50%;
     background: var(--accent);
