@@ -310,8 +310,17 @@
     align-items: center;
     gap: 9px;
   }
-  /* 创作时间：小字、无衬底，靠白晕保证压在插画上也读得清 */
+  /* 创作时间：小字，压在插画上。衬底为「左淡右实」的半透明渐变 ——
+     右侧紧邻二维码按钮，实端与之衔接；左侧渐隐融入插画，不留硬边。 */
   .card-foot time {
+    position: relative;
+    top: 8px;                 /* 单独下沉 8px，二维码按钮位置保持不动 */
+    padding: 3px 9px 4px 10px;
+    border-radius: 999px;
+    background: linear-gradient(90deg,
+      rgba(255, 253, 248, .28) 0%,
+      rgba(255, 253, 248, .74) 42%,
+      rgba(255, 253, 248, .92) 100%);
     font-size: .72rem;
     font-weight: 600;
     letter-spacing: .015em;
@@ -319,9 +328,19 @@
     white-space: nowrap;
     color: #241f19;
     text-shadow:
-      0 1px 0 rgba(255, 255, 255, .96),
-      0 0 4px rgba(255, 255, 255, .96),
-      0 0 9px rgba(255, 255, 255, .88);
+      0 1px 0 rgba(255, 255, 255, .92),
+      0 0 4px rgba(255, 255, 255, .9);
+  }
+
+  /* 窄机（iPhone SE 一类）：卡片只有 161px，可给右下角这一行用的宽度仅 127px，
+     「日期 93 + 间距 9 + 按钮 52 = 154」塞不下，会连带把按钮挤出卡片右缘被 overflow 裁掉。
+     收紧日期字号与内边距，压到 139px 以内。iPad / 常规手机不受影响。 */
+  @media (max-width: 400px) {
+    .card-foot time {
+      font-size: .64rem;
+      letter-spacing: 0;
+      padding: 2px 6px 3px 7px;
+    }
   }
 
   .qr-btn {
