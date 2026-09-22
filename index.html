@@ -428,6 +428,42 @@
     .qr-btn { width: 46px; height: 46px; }
   }
 
+  /* ---------- 右侧下拉条（自绘，不用系统滚动条） ----------
+     不直接用系统滚动条，是因为两头都不受控：
+     ① iOS / iPadOS Safari 至今**完全忽略** ::-webkit-scrollbar 与 scrollbar-width，
+        没有 polyfill 能绕过 —— 在 iPad 上改系统滚动条的粗细是白费功夫；
+     ② 桌面端滚动条的显隐与粗细由系统「显示滚动条」设置决定（可能是一条 15px 的粗条，
+        也可能完全不显示），页面说了不算。
+     自绘一条：粗细、位置、显隐全部由页面定，各端表现一致。
+     自绘之前必须先把系统那条藏掉，否则桌面端会并排出现两条。 */
+  html { scrollbar-width: none; }                        /* Firefox / 新标准 */
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar { width: 0; height: 0; }       /* Chrome / Safari / Edge / Android */
+
+  .scroll-rail {
+    position: fixed;
+    z-index: 44;                       /* 低于整馆二维码（45），不抢它的层 */
+    top: calc(env(safe-area-inset-top, 0px) + 10px);
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 10px);
+    right: calc(env(safe-area-inset-right, 0px) + 4px);
+    width: 3px;
+    border-radius: 3px;
+    /* 极淡的轨道：给「这里还能往下」一个静态提示。淡到近乎无感，不打扰插画 */
+    background: rgba(43, 38, 32, .05);
+    opacity: 0;
+    pointer-events: none;              /* 纯指示元素，不吃点击、不挡卡片 */
+  }
+  /* 不做淡入过渡：过渡动画在后台标签页会被冻结，宁可硬切也不要出现
+     「该显示时不可见」的状态（页内浮层已经踩过这个坑）。 */
+  .scroll-rail.is-on { opacity: 1; }
+  .scroll-thumb {
+    display: block;
+    width: 100%;
+    min-height: 40px;                  /* 兜底：页面极长时滑块也不会细成一条线 */
+    border-radius: inherit;
+    background: rgba(43, 38, 32, .24);
+  }
+  /* 阅读层是不透光的整屏且 z-index 更高，会自然盖住它 */
   /* 整个作品馆的二维码：固定在画面右下角 */
   .site-qr {
     position: fixed;
@@ -550,6 +586,10 @@
 
 <main id="grid" class="grid" aria-live="polite"></main>
 
+<!-- 右侧下拉条：自绘，各端一致。aria-hidden —— 纯视觉指示，
+     滚动位置由屏幕阅读器自己播报，不该被重复读一遍 -->
+<div class="scroll-rail" id="scroll-rail" aria-hidden="true"><span class="scroll-thumb"></span></div>
+
 <button class="site-qr" id="site-qr" aria-label="显示作品馆二维码" hidden>
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
     <rect x="3" y="3" width="7" height="7" rx="1.6"/><rect x="14" y="3" width="7" height="7" rx="1.6"/>
@@ -634,6 +674,7 @@
     frame.src = withEntryFlag(readerUrl);
     reader.hidden = false;
     document.body.style.overflow = "hidden";
+    syncRail();   // 阅读层占满整屏，下拉条该收起来
     document.getElementById("reader-back").focus({ preventScroll: true });
   }
 
@@ -643,6 +684,7 @@
     frame.removeAttribute("src"); // 断开引用，把里面的声音一起停掉
     readerUrl = "";
     document.body.style.overflow = "";
+    syncRail();   // 回到列表，按当前滚动位置重新显示
   }
 
   document.getElementById("reader-back").addEventListener("click", closeReader);
@@ -659,6 +701,37 @@
     if (!siteQrPath) return;
     openQr({ title: "峻峻的作品馆", qr: siteQrPath, onlineUrl: "" }, siteQrEl);
   });
+
+  /* ---------- 右侧下拉条 ----------
+     系统滚动条在 iPad 上不可定制（见 CSS 段的说明），所以位置与长度全部自己算：
+     滑块长度 = 轨道长 × 视口高 / 文档高，滑到哪里 = 轨道余长 × 已滚比例。
+     纯指示元素，不接管任何交互；滚动/改窗口/内容变高三种情况都要重算。 */
+  var rail = document.getElementById("scroll-rail");
+  var railThumb = rail.querySelector(".scroll-thumb");
+
+  function syncRail() {
+    /* 阅读层占满整屏、且把页面滚动锁了，此时下拉条没有意义 */
+    if (!reader.hidden) { rail.classList.remove("is-on"); return; }
+    var doc = document.documentElement;
+    var viewH = doc.clientHeight;
+    var fullH = doc.scrollHeight;
+    var max = fullH - viewH;
+    /* 不足一屏就没得滚 —— 留 24px 容差，避免「只多出十几像素」时也挂一条滑块 */
+    if (max <= 24) { rail.classList.remove("is-on"); return; }
+    rail.classList.add("is-on");
+    var railH = rail.clientHeight;
+    var th = Math.max(40, Math.round(railH * viewH / fullH));
+    /* iOS 回弹时 pageYOffset 会变成负数，夹住再算，滑块才不会跑出轨道 */
+    var y = Math.round((railH - th) * Math.min(max, Math.max(0, window.pageYOffset)) / max);
+    railThumb.style.height = th + "px";
+    railThumb.style.transform = "translateY(" + y + "px)";
+  }
+
+  window.addEventListener("scroll", syncRail, { passive: true });
+  window.addEventListener("resize", syncRail);
+  window.addEventListener("orientationchange", function () { setTimeout(syncRail, 120); });
+  /* 内容高度会变（作品增减、列表重载），光靠 scroll/resize 抓不到 */
+  if (window.ResizeObserver) new ResizeObserver(syncRail).observe(document.body);
 
   function card(work, index) {
     var el = document.createElement("article");
@@ -769,12 +842,14 @@
     return fetch(url, { cache: "no-store" })
       .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
       .then(render)
+      .then(syncRail)
       .catch(function (err) {
         grid.textContent = "";
         var p = document.createElement("p");
         p.className = "empty";
         p.textContent = "作品列表没读出来（" + err.message + "），确认服务在跑，然后刷新一下。";
         grid.appendChild(p);
+        syncRail();
       });
   }
 
