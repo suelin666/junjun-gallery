@@ -245,7 +245,7 @@
     display: flex; align-items: center; justify-content: center;
     color: var(--ink-soft); font-size: 2.4rem;
   }
-  /* 书名区：卡片左上角一个白底标签，内含「序号 + 书名」一行与创作日期一行。
+  /* 书名区：卡片左上角一个白底标签，内含两行 —— 第一行书名独占，第二行「序号 · 日期」元信息。
      信息归一块、操作（右下角二维码按钮）独立一块 ——
      四块分散在两个对角会让视线来回跳。 */
   .caption {
@@ -253,9 +253,9 @@
     z-index: 3;
     left: 26px;
     top: 16px;
-    /* 只避让右侧书口（16px），不按二维码按钮留宽 ——
-       二维码在卡片右下角，跟顶部这块不冲突，留太多会把书名挤到折行 */
-    right: 34px;
+    /* 右侧只避让书口（16px 纸纹），留 22px 即 6px 净空。
+       原来留 34px，白白吃掉 12px —— 标题可用宽度不足就会折行。 */
+    right: 22px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
@@ -263,45 +263,56 @@
   .card-tag {
     display: flex;
     flex-direction: column;
-    gap: 1px;
+    gap: 2px;
     background: #fffdf8;
     border-radius: 11px;
-    /* 左右内边距收到 9px：序号与书名同行后内容变宽，
-       430 档卡片 188px 下 11px 会把书名挤折行 */
     padding: 6px 9px 7px;
     box-shadow: 0 1px 5px rgba(43, 38, 32, .15);
   }
-  .card-tag-main {
+  /* 书名独占一行：不跟序号共享行宽。
+     同享时序号占掉 16px，标题可用宽度被压到临界值 —— 393/414 档（iPhone 15/16 Pro 宽度）
+     会直接折行，430 档也只剩 0 余量。
+     不设 nowrap：真遇到超长书名时宁可折两行，也不要溢出被卡片裁掉。 */
+  .card-tag h2 {
+    margin: 0;
+    font-size: clamp(.9rem, 1.8vw, 1.08rem);
+    line-height: 1.25;
+    font-weight: 600;
+    color: var(--ink);
+  }
+  /* 元信息行：序号 · 创作日期。两者都是次要信息，合成一行。 */
+  .card-tag-meta {
     display: flex;
     align-items: baseline;
     gap: 5px;
   }
-  /* 序号：纯数字，强调色，不占独立标签 —— 与书名同行，读作「第 1 册《…》」 */
+  /* 序号：纯数字，强调色 */
   .card-no {
     flex: none;
-    font-size: 1.06rem;
+    font-size: .78rem;
     font-weight: 700;
     line-height: 1.1;
     font-variant-numeric: tabular-nums;
     color: var(--accent);
   }
-  .card-tag h2 {
-    margin: 0;
-    font-size: clamp(.95rem, 1.9vw, 1.15rem);
-    line-height: 1.25;
-    font-weight: 600;
-    color: var(--ink);
-  }
-  /* 创作日期：次要信息，压在标签内第二行 ——
-     字号小于书名、灰度低于书名、字重不加粗，不与书名争视线。 */
-  .card-tag time {
+  .card-tag-meta .sep {
     font-size: .62rem;
+    line-height: 1.1;
+    color: #bdb4a9;
+  }
+  /* 创作日期：次要信息 —— 字号小于书名、灰度低于书名、字重不加粗，不与书名争视线。 */
+  .card-tag time {
+    font-size: .64rem;
     font-weight: 400;
     letter-spacing: .02em;
     line-height: 1.2;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
     color: #9c938a;
+  }
+  /* 极窄机（≤360px）：卡片仅 133~153px，标题再收一档避免折行 */
+  @media (max-width: 360px) {
+    .card-tag h2 { font-size: .84rem; }
   }
 
   /* 卡片右下角：只剩二维码按钮（创作日期已并入左上角信息标签） */
@@ -605,25 +616,31 @@
     var tag = document.createElement("div");
     tag.className = "card-tag";
 
-    var tagMain = document.createElement("div");
-    tagMain.className = "card-tag-main";
+    /* 第一行：书名独占，不跟序号共享行宽 */
+    var h2 = document.createElement("h2");
+    h2.textContent = work.title;
+    tag.appendChild(h2);
+
+    /* 第二行：序号 · 创作日期（元信息） */
+    var meta = document.createElement("div");
+    meta.className = "card-tag-meta";
 
     var no = document.createElement("span");
     no.className = "card-no";
     no.textContent = seqText;
-    tagMain.appendChild(no);
+    meta.appendChild(no);
 
-    var h2 = document.createElement("h2");
-    h2.textContent = work.title;
-    tagMain.appendChild(h2);
-    tag.appendChild(tagMain);
-
-    /* 创作日期：并入同一标签的第二行，作为次要信息 */
     if (work.created) {
+      var sep = document.createElement("span");
+      sep.className = "sep";
+      sep.textContent = "·";
+      meta.appendChild(sep);
+
       var when = document.createElement("time");
       when.textContent = work.created;
-      tag.appendChild(when);
+      meta.appendChild(when);
     }
+    tag.appendChild(meta);
     caption.appendChild(tag);
     thumb.appendChild(caption);
 
