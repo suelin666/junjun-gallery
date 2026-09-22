@@ -310,26 +310,20 @@
     align-items: center;
     gap: 9px;
   }
-  /* 创作时间：小字，压在插画上。衬底为「左淡右实」的半透明渐变 ——
-     右侧紧邻二维码按钮，实端与之衔接；左侧渐隐融入插画，不留硬边。 */
+  /* 创作时间：小字，压在插画上。衬底为 40% 黑，白字 ——
+     深底浅字，插画再亮也不用靠阴影硬撑（原先的白底白晕反而不成立）。 */
   .card-foot time {
     position: relative;
     top: 8px;                 /* 单独下沉 8px，二维码按钮位置保持不动 */
     padding: 3px 9px 4px 10px;
     border-radius: 999px;
-    background: linear-gradient(90deg,
-      rgba(255, 253, 248, .28) 0%,
-      rgba(255, 253, 248, .74) 42%,
-      rgba(255, 253, 248, .92) 100%);
+    background: rgba(0, 0, 0, .4);
     font-size: .72rem;
     font-weight: 600;
     letter-spacing: .015em;
     font-variant-numeric: tabular-nums;
     white-space: nowrap;
-    color: #241f19;
-    text-shadow:
-      0 1px 0 rgba(255, 255, 255, .92),
-      0 0 4px rgba(255, 255, 255, .9);
+    color: #fff;
   }
 
   /* 窄机（iPhone SE 一类）：卡片只有 161px，可给右下角这一行用的宽度仅 127px，
