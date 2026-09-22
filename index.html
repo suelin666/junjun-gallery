@@ -507,9 +507,19 @@
   var frame = document.getElementById("reader-frame");
   var readerUrl = "";
 
+  /* 绘本页看到这个 hash 会跳过自己的封面页，直接进故事正文 ——
+     书名已经叠在卡片上了，再走一遍封面是多余的。
+     单独扫码或直接打开链接时不带这个 hash，照旧先显示封面。
+     用 hash 而不是 query：豆包对不带尾斜杠的地址做 301，会丢掉 search，只有 hash 能活着到达页面。 */
+  var ENTRY_HASH = "#from-gallery";
+  function withEntryFlag(url) {
+    if (!url) return url;
+    return url.split("#")[0] + ENTRY_HASH;
+  }
+
   function openReader(work) {
     readerUrl = work.onlineUrl || work.localUrl;
-    frame.src = readerUrl;
+    frame.src = withEntryFlag(readerUrl);
     reader.hidden = false;
     document.body.style.overflow = "hidden";
     document.getElementById("reader-back").focus({ preventScroll: true });
@@ -524,6 +534,7 @@
   }
 
   document.getElementById("reader-back").addEventListener("click", closeReader);
+  /* 「在浏览器中打开」算单独进入：给不带 hash 的原始地址，让作品页正常显示封面 */
   document.getElementById("reader-external").addEventListener("click", function () {
     if (readerUrl) window.open(readerUrl, "_blank", "noopener");
   });
