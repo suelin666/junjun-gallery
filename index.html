@@ -259,27 +259,19 @@
     align-items: flex-start;
     gap: 7px;
   }
-  /* 册号：学 moe 封面的期号标签（白底圆角 + 强调色大数字）。
+  /* 册号：纯数字的白底圆角标签。
      放在书名**上方**垂直堆叠，不占水平空间 ——
      手机 2 列时卡片只有 188px，右上角放序号会和书名抢位置导致折行。 */
   .card-no {
     display: inline-flex;
-    align-items: baseline;
-    gap: 3px;
+    align-items: center;
+    justify-content: center;
+    min-width: 27px;
     background: #fffdf8;
     border-radius: 9px;
-    padding: 3px 9px 4px;
+    padding: 2px 8px 3px;
     box-shadow: 0 1px 5px rgba(43, 38, 32, .16);
     line-height: 1;
-  }
-  .card-no i {
-    font-style: normal;
-    font-size: .62rem;
-    font-weight: 600;
-    letter-spacing: .06em;
-    color: var(--ink-soft);
-  }
-  .card-no b {
     font-size: 1.06rem;
     font-weight: 700;
     font-variant-numeric: tabular-nums;
@@ -592,9 +584,9 @@
     el.className = "card";
 
     /* 册号：优先用 meta.json 的 order —— 编号固定，新增作品不会把已有编号挤走；
-       没有 order 时退回展示顺序。补零成两位，学 moe 的期号写法，排序时不会 1/10/2 乱跳。 */
+       没有 order 时退回展示顺序。只写数字本身，不带单位前缀。 */
     var seq = typeof work.order === "number" ? work.order : index + 1;
-    var seqText = (seq < 10 ? "0" : "") + seq;
+    var seqText = String(seq);
 
     var link = document.createElement("a");
     link.className = "card-open";
@@ -627,12 +619,7 @@
 
     var no = document.createElement("span");
     no.className = "card-no";
-    var noUnit = document.createElement("i");
-    noUnit.textContent = "vol";
-    var noNum = document.createElement("b");
-    noNum.textContent = seqText;
-    no.appendChild(noUnit);
-    no.appendChild(noNum);
+    no.textContent = seqText;
     caption.appendChild(no);
 
     var h2 = document.createElement("h2");
