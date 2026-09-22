@@ -49,17 +49,14 @@
     margin: 0 0 6px;
     letter-spacing: .01em;
   }
-  /* 内嵌阅读层：作品在页内打开，返回按钮由作品馆自己控制，不依赖浏览器导航 */
+  /* 内嵌阅读层：作品在页内打开，返回按钮由作品馆自己控制，不依赖浏览器导航
+     （同样不做淡入动画，保证点击后立刻可见） */
   .reader {
     position: fixed;
     inset: 0;
     z-index: 80;
     background: #fffdfa;
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .16s ease;
   }
-  .reader.open { opacity: 1; pointer-events: auto; }
   .reader iframe {
     position: absolute;
     inset: 0;
@@ -174,7 +171,7 @@
   .qr-btn:active { transform: scale(.94); }
   .qr-btn svg { width: 26px; height: 26px; }
 
-  /* 二维码浮层 */
+  /* 二维码浮层（不做淡入动画：过渡在后台/异常环境下会被冻结，出现"点了不出来"） */
   .overlay {
     position: fixed;
     inset: 0;
@@ -189,11 +186,7 @@
       calc(env(safe-area-inset-top, 0px) + 20px)
       20px
       calc(env(safe-area-inset-bottom, 0px) + 20px);
-    opacity: 0;
-    pointer-events: none;
-    transition: opacity .16s ease;
   }
-  .overlay.open { opacity: 1; pointer-events: auto; }
   .sheet {
     position: relative;
     width: min(92vw, 420px);
@@ -204,10 +197,7 @@
     padding: 26px 24px 22px;
     text-align: center;
     box-shadow: 0 24px 60px -20px rgba(0, 0, 0, .5);
-    transform: translateY(10px) scale(.98);
-    transition: transform .18s ease;
   }
-  .overlay.open .sheet { transform: none; }
   .sheet h3 { margin: 0 0 16px; font-size: 1.18rem; line-height: 1.35; }
   .qr-frame {
     background: #f7f5f0;
@@ -304,14 +294,11 @@
     qrImg.src = work.qr;
     qrImg.alt = work.title + " 二维码";
     overlay.hidden = false;
-    void overlay.offsetWidth; // 强制 reflow，让过渡同步生效（不依赖 requestAnimationFrame）
-    overlay.classList.add("open");
     document.getElementById("qr-close").focus({ preventScroll: true });
   }
 
   function closeQr() {
     if (overlay.hidden) return;
-    overlay.classList.remove("open");
     overlay.hidden = true;
     qrImg.removeAttribute("src");
     if (lastTrigger && document.contains(lastTrigger)) lastTrigger.focus({ preventScroll: true });
@@ -333,15 +320,12 @@
     readerUrl = work.onlineUrl || work.localUrl;
     frame.src = readerUrl;
     reader.hidden = false;
-    void reader.offsetWidth; // 强制 reflow，让过渡同步生效（不依赖 requestAnimationFrame）
-    reader.classList.add("open");
     document.body.style.overflow = "hidden";
     document.getElementById("reader-back").focus({ preventScroll: true });
   }
 
   function closeReader() {
     if (reader.hidden) return;
-    reader.classList.remove("open");
     reader.hidden = true;
     frame.removeAttribute("src"); // 断开引用，把里面的声音一起停掉
     readerUrl = "";
