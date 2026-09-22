@@ -19,6 +19,13 @@
     --ink-soft: #7a7168;
     --accent: #c8622a;
     --accent-soft: #f6ede2;
+    /* 书签专用的一对：淡橙底 + 其上的深橙数字。
+       只给序号书签用 —— 它需要「有一点颜色」但仍是配角。
+       数字必须用 --accent-deep 而不是 --accent：橙色数字落在淡橙底上
+       对比度只有 3.35:1，小字偏弱；换成深橙后实测 4.75:1，
+       过小字 4.5:1 门槛但余量不大 —— 这条线不要再往下调。 */
+    --accent-tint: #f8e8d8;
+    --accent-deep: #a84b1c;
     --card: #ffffff;
     --line: rgba(43, 38, 32, .09);
     --radius: 22px;
@@ -290,9 +297,13 @@
      为什么是书签：① 语义对（绘本馆里「第 N 册」本来就该像书签，不是圆点）；
      ② 形状薄（22px vs 圆形角标的 34px 横向占用），直接给书名多让出一个汉字的宽度；
      ③ 贴右边缘像「夹在书页里露出的那截」，四张卡的书签永远同一位置。
-     白底而非橙底：橙色只留给需要被识别的元素（数字本身、二维码按钮）。
-     给书签上重色，它会变成卡片上唯一的色块，把最次要的信息抬成最抢眼的 ——
-     这和当年那个 40% 黑底日期胶囊是同一个错误。
+     底色是**淡橙**（--accent-tint），不是实橙：
+       实橙会让书签成为卡片上最重的色块，把序号抬得比书名还抢眼 ——
+       这和当年那个 40% 黑底日期胶囊是同一个错误。
+       淡橙给到「看得出颜色、但仍是配角」，并与白底书名标签形成区分
+       （两块原来都是白底，容易糊成一片）。
+     数字用 --accent-deep（深橙）而非 --accent：淡橙底上橙数字只 3.35:1，偏弱；
+       深橙实测 4.75:1，过小字 4.5:1 门槛。
      贴 top:0 right:0，右上角由卡片自身的 border-radius 裁成圆弧，形成「从书页边缘露出」的效果。
      只读不可点，不适用 52px 触摸目标。 */
   .card-bookmark {
@@ -302,9 +313,9 @@
     top: 0;
     width: 22px;
     height: 44px;
-    background: #fffdf8;
+    background: var(--accent-tint);
     clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 74%, 0 100%);
-    color: var(--accent);
+    color: var(--accent-deep);
     font-size: .7rem;
     font-weight: 700;
     line-height: 1;
@@ -340,24 +351,31 @@
       0 0 8px #fffdf8,
       0 0 12px rgba(255, 253, 248, .9);
   }
-  /* 卡片右下角：只剩二维码按钮 */
+  /* 卡片右下角：只剩二维码按钮。
+     偏移量按「视觉圆的外缘」定，不按按钮盒 —— 圆缩小后仍贴在同一位置，
+     看上去只是变小，不会往卡片中间飘。
+     = 原偏移 − (触摸盒 − 视觉圆) / 2 */
   .card-foot {
     position: absolute;
     z-index: 3;
-    right: 22px;
-    bottom: 18px;
+    right: 15.5px;   /* 22 − (52 − 39) / 2 */
+    bottom: 11.5px;  /* 18 − (52 − 39) / 2 */
     display: flex;
     align-items: center;
   }
 
+  /* 视觉圆与点击区解耦：看得见的圆缩到 39px（52 的 −25%），
+     但按钮盒仍是 52px —— 手指够得着的范围一点没小。
+     缩小的应该是「看见的那圈」，不是「能点的范围」：
+     39px 低于 44px 的最小触摸目标，直接缩按钮盒会让小孩点偏。 */
   .qr-btn {
+    position: relative;
     flex: none;
     width: var(--tap);
     height: var(--tap);
     border: 0;
-    border-radius: 50%;
-    background: rgba(255, 255, 255, .94);
-    box-shadow: 0 2px 10px rgba(43, 38, 32, .17);
+    padding: 0;
+    background: transparent;
     color: var(--accent);
     display: flex;
     align-items: center;
@@ -365,8 +383,21 @@
     cursor: pointer;
     -webkit-tap-highlight-color: transparent;
   }
+  .qr-btn::before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 39px;
+    height: 39px;
+    margin: -19.5px 0 0 -19.5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, .94);
+    box-shadow: 0 2px 10px rgba(43, 38, 32, .17);
+  }
   .qr-btn:active { transform: scale(.94); }
-  .qr-btn svg { width: 18px; height: 18px; }
+  /* 图标按视觉圆同比收：18 → 13.5，保持图标与圆的呼吸一致 */
+  .qr-btn svg { position: relative; z-index: 1; width: 13.5px; height: 13.5px; }
 
   /* 极窄机（≤360px）：卡片仅 133~153px。
      标题收一档避免折行；左下日期与右下二维码按钮在 133px 卡片上会横向打架
@@ -376,7 +407,10 @@
   @media (max-width: 360px) {
     .card-tag h2 { font-size: .84rem; }
     .card-date { left: 12px; font-size: .54rem; }
-    .card-foot { right: 14px; }
+    /* 与基础规则同一套算法：偏移按「视觉圆外缘」定。
+       原来 46px 的圆贴右 14px；现在圆缩到 39px 而盒子仍是 46px，
+       盒子右偏要减掉 (46 − 39) / 2 = 3.5px，圆的外缘才停在原处。 */
+    .card-foot { right: 10.5px; }
     .qr-btn { width: 46px; height: 46px; }
   }
 
