@@ -245,19 +245,45 @@
     display: flex; align-items: center; justify-content: center;
     color: var(--ink-soft); font-size: 2.4rem;
   }
-  /* 书名：叠在封面左上角，省掉下方整条信息栏（创作时间已移到卡片右下角、二维码左侧） */
+  /* 书名：叠在封面左上角，省掉下方整条信息栏（创作时间在卡片右下角、二维码左侧） */
   .caption {
     position: absolute;
     z-index: 3;
     left: 26px;
     top: 16px;
-    /* 只避让右侧书口（16px），不再按二维码按钮留 64px ——
+    /* 只避让右侧书口（16px），不按二维码按钮留宽 ——
        二维码在卡片右下角，跟顶部这块不冲突，留太多会把书名挤到折行 */
     right: 34px;
     display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 5px;
+    gap: 7px;
+  }
+  /* 册号：学 moe 封面的期号标签（白底圆角 + 强调色大数字）。
+     放在书名**上方**垂直堆叠，不占水平空间 ——
+     手机 2 列时卡片只有 188px，右上角放序号会和书名抢位置导致折行。 */
+  .card-no {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 3px;
+    background: #fffdf8;
+    border-radius: 9px;
+    padding: 3px 9px 4px;
+    box-shadow: 0 1px 5px rgba(43, 38, 32, .16);
+    line-height: 1;
+  }
+  .card-no i {
+    font-style: normal;
+    font-size: .62rem;
+    font-weight: 600;
+    letter-spacing: .06em;
+    color: var(--ink-soft);
+  }
+  .card-no b {
+    font-size: 1.06rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--accent);
   }
   .caption h2 {
     margin: 0;
@@ -265,9 +291,9 @@
     line-height: 1.25;
     font-weight: 600;
     color: var(--ink);
-    background: rgba(255, 253, 248, .84);
-    -webkit-backdrop-filter: blur(3px);
-    backdrop-filter: blur(3px);
+    /* 实白底标签（同 .card-no 一套语汇）：不用半透明+高斯模糊 ——
+       少一层 backdrop-filter 开销，压在插画上更清爽 */
+    background: #fffdf8;
     border-radius: 10px;
     padding: 6px 11px;
     box-shadow: 0 1px 5px rgba(43, 38, 32, .14);
@@ -548,9 +574,14 @@
     openQr({ title: "峻峻的作品馆", qr: siteQrPath, onlineUrl: "" }, siteQrEl);
   });
 
-  function card(work) {
+  function card(work, index) {
     var el = document.createElement("article");
     el.className = "card";
+
+    /* 册号：优先用 meta.json 的 order —— 编号固定，新增作品不会把已有编号挤走；
+       没有 order 时退回展示顺序。补零成两位，学 moe 的期号写法，排序时不会 1/10/2 乱跳。 */
+    var seq = typeof work.order === "number" ? work.order : index + 1;
+    var seqText = (seq < 10 ? "0" : "") + seq;
 
     var link = document.createElement("a");
     link.className = "card-open";
@@ -559,7 +590,7 @@
     link.href = work.onlineUrl || work.localUrl;
     link.target = "_blank";
     link.rel = "noopener";
-    link.setAttribute("aria-label", "打开《" + work.title + "》");
+    link.setAttribute("aria-label", "打开第 " + seq + " 册《" + work.title + "》");
     link.addEventListener("click", function (e) {
       e.preventDefault();
       openReader(work);
@@ -580,6 +611,17 @@
 
     var caption = document.createElement("div");
     caption.className = "caption";
+
+    var no = document.createElement("span");
+    no.className = "card-no";
+    var noUnit = document.createElement("i");
+    noUnit.textContent = "vol";
+    var noNum = document.createElement("b");
+    noNum.textContent = seqText;
+    no.appendChild(noUnit);
+    no.appendChild(noNum);
+    caption.appendChild(no);
+
     var h2 = document.createElement("h2");
     h2.textContent = work.title;
     caption.appendChild(h2);
@@ -626,7 +668,7 @@
       return;
     }
     var frag = document.createDocumentFragment();
-    works.forEach(function (w) { frag.appendChild(card(w)); });
+    works.forEach(function (w, i) { frag.appendChild(card(w, i)); });
     grid.appendChild(frag);
   }
 
