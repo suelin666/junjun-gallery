@@ -1,5 +1,5 @@
 {
-  "generatedAt": "2026-09-24 23:08",
+  "generatedAt": "2026-09-24 23:31",
   "latestCreated": "2026-09-24",
   "siteQr": "qr/gallery.png",
   "count": 3,
@@ -46,8 +46,8 @@
       "appId": "app_17erzp85x2p",
       "created": "2026-09-24",
       "localUrl": "/work/cosmic-train/",
-      "desc": "",
-      "order": 100
+      "desc": "坐宇宙小火车探险，不乖的大灰狼锁电梯",
+      "order": 3
     }
   ]
 }
