@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-09-24 16:33",
+  "generatedAt": "2026-09-24 23:03",
   "latestCreated": "2026-09-22",
   "siteQr": "qr/gallery.png",
-  "count": 2,
+  "count": 3,
   "works": [
     {
       "slug": "train-story",
@@ -33,6 +33,21 @@
       "localUrl": "/work/wolf-bunny/",
       "desc": "峻峻和大灰狼、小白兔交朋友",
       "order": 2
+    },
+    {
+      "slug": "cosmic-train",
+      "title": "宇宙小火车",
+      "kind": "story",
+      "kindLabel": "绘本",
+      "badge": "9 页",
+      "cover": "covers/cosmic-train.jpg",
+      "qr": null,
+      "onlineUrl": "",
+      "appId": null,
+      "created": null,
+      "localUrl": "/work/cosmic-train/",
+      "desc": "",
+      "order": 100
     }
   ]
 }
