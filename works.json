@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-09-24 23:31",
-  "latestCreated": "2026-09-24",
+  "generatedAt": "2026-09-25 20:50",
+  "latestCreated": "2026-09-25",
   "siteQr": "qr/gallery.png",
-  "count": 3,
+  "count": 4,
   "works": [
     {
       "slug": "train-story",
@@ -48,6 +48,21 @@
       "localUrl": "/work/cosmic-train/",
       "desc": "坐宇宙小火车探险，不乖的大灰狼锁电梯",
       "order": 3
+    },
+    {
+      "slug": "line1-train",
+      "title": "1号线小火车",
+      "kind": "story",
+      "kindLabel": "绘本",
+      "badge": "9 页",
+      "cover": "covers/line1-train.jpg",
+      "qr": "qr/line1-train.png",
+      "onlineUrl": "https://4m3bxapz6bysm.doubaoapps.com/app/app_17etytbhfpf",
+      "appId": "app_17etytbhfpf",
+      "created": "2026-09-25",
+      "localUrl": "/work/line1-train/",
+      "desc": "1号线小火车贴满星星小红花出发，大灰狼反省",
+      "order": 4
     }
   ]
 }
