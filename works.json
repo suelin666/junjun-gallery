@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-08 21:06",
-  "latestCreated": "2026-10-08",
+  "generatedAt": "2026-10-21 14:55",
+  "latestCreated": "2026-10-21",
   "siteQr": "qr/gallery.png",
-  "count": 7,
+  "count": 8,
   "works": [
     {
       "slug": "train-story",
@@ -108,6 +108,21 @@
       "localUrl": "/work/polite-wolf/",
       "desc": "大灰狼不会好好说话，大家温柔教它说你好谢谢，变成有礼貌的小伙伴",
       "order": 7
+    },
+    {
+      "slug": "dudu-train",
+      "title": "嘟嘟小火车",
+      "kind": "story",
+      "kindLabel": "绘本",
+      "badge": "9 页",
+      "cover": "covers/dudu-train.jpg",
+      "qr": "qr/dudu-train.png",
+      "onlineUrl": "https://4m3bxapz6bysm.doubao.link/app/app_17gfx2max3h",
+      "appId": "app_17gfx2max3h",
+      "created": "2026-10-21",
+      "localUrl": "/work/dudu-train/",
+      "desc": "峻峻开小火车送迷路的小老鼠回家，轮子咕噜噜爬上山",
+      "order": 8
     }
   ]
 }
