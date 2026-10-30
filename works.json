@@ -1,8 +1,8 @@
 {
-  "generatedAt": "2026-10-21 14:55",
-  "latestCreated": "2026-10-21",
+  "generatedAt": "2026-10-30 18:35",
+  "latestCreated": "2026-10-30",
   "siteQr": "qr/gallery.png",
-  "count": 8,
+  "count": 9,
   "works": [
     {
       "slug": "train-story",
@@ -123,6 +123,21 @@
       "localUrl": "/work/dudu-train/",
       "desc": "峻峻开小火车送迷路的小老鼠回家，轮子咕噜噜爬上山",
       "order": 8
+    },
+    {
+      "slug": "kind-words",
+      "title": "不学伤人的话",
+      "kind": "story",
+      "kindLabel": "绘本",
+      "badge": "9 页",
+      "cover": "covers/kind-words.jpg",
+      "qr": "qr/kind-words.png",
+      "onlineUrl": "https://4m3bxapz6bysm.doubao.link/app/app_17h2c1vmj94",
+      "appId": "app_17h2c1vmj94",
+      "created": "2026-10-30",
+      "localUrl": "/work/kind-words/",
+      "desc": "小伙伴说了伤人的话，峻峻没有跟着学，自己动脑筋，说出了好听的话",
+      "order": 9
     }
   ]
 }
